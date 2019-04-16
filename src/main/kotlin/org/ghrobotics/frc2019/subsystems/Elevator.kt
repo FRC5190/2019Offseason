@@ -1,8 +1,8 @@
 package org.ghrobotics.frc2019.subsystems
 
 import com.ctre.phoenix.motorcontrol.*
-import org.ghrobotics.frc2019.Robot
 import org.ghrobotics.frc2019.Constants
+import org.ghrobotics.frc2019.Robot
 import org.ghrobotics.lib.components.SpringCascadeElevatorComponent
 import org.ghrobotics.lib.mathematics.threedim.geometry.Vector3
 import org.ghrobotics.lib.mathematics.units.Length
@@ -16,6 +16,10 @@ object Elevator : SpringCascadeElevatorComponent(
     Constants.kElevatorAfterSwitchKg,
     Constants.kElevatorBelowSwitchKg
 ) {
+
+    init {
+        addComponent(Arm)
+    }
 
     override val motor = configMotor()
 
@@ -88,6 +92,7 @@ object Elevator : SpringCascadeElevatorComponent(
 
         masterMotor.motionProfileCruiseVelocity = Constants.kElevatorCruiseVelocity.value
         masterMotor.motionProfileAcceleration = Constants.kElevatorAcceleration.value
+        masterMotor.useMotionProfileForPosition = true
 
         masterMotor.talonSRX.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 20)
         masterMotor.talonSRX.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_20Ms)

@@ -2,6 +2,7 @@ package org.ghrobotics.frc2019.subsystems
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
+import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.lib.components.DriveComponent
@@ -33,17 +34,24 @@ object Drivetrain : DriveComponent(Constants.kDriveElevation) {
     override val differentialDrive = Constants.kDriveModel
     override val trajectoryTracker = RamseteTracker(Constants.kDriveBeta, Constants.kDriveZeta)
 
-    override val localization = TankEncoderLocalization(
+    private val localization = TankEncoderLocalization(
         TODO("Pigeon is on intake"), //IntakeSubsystem.pigeonSource
         { leftMotor.encoder.position },
         { rightMotor.encoder.position }
     )
+
+    override val robotPosition by localization
 
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
     var wantedLowGear = false
     var currentLowGear = true
         private set
+
+    init {
+        Notifier(localization::update)
+            .startPeriodic(1.0 / 100.0)
+    }
 
     override fun update() {
         super.update()

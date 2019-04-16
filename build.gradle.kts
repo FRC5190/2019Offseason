@@ -64,7 +64,7 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.1")
 
     // FalconLibrary
-    compile("org.ghrobotics", "FalconLibrary", "b847f7f")
+    compile("org.ghrobotics", "FalconLibrary", "9a6c412")
 
     // Apache Commons Math
     compile("org.apache.commons", "commons-math3", "3.6.1")
