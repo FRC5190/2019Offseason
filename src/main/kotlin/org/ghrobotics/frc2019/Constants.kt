@@ -197,10 +197,10 @@ object Constants {
 
     const val kElevatorKp = 1.0
     const val kElevatorKd = 0.0
-    const val kElevatorBelowSwitchKg = 0.7889999999999985 / 12.0
-    const val kElevatorAfterSwitchKg = 1.5089999999999901 / 12.0
-    const val kElevatorBelowSwitchKs = 1.3169999999999993 / 12.0
-    const val kElevatorAfterSwitchKs = 1.0709999999999904 / 12.0
+    const val kElevatorBelowSwitchKg = 0.7889999999999985
+    const val kElevatorAfterSwitchKg = 1.5089999999999901
+    const val kElevatorBelowSwitchKs = 1.3169999999999993
+    const val kElevatorAfterSwitchKs = 1.0709999999999904
     val kElevatorKf = kElevatorNativeUnitModel.calculatekF(8.66 - kElevatorHoldVoltage, 64.inch.velocity.value)
 
     // ARM
