@@ -226,8 +226,8 @@ object Constants {
 
     const val kArmEmptyHoldVoltage = 1.0
 
-    val kArmEmptyKg = kArmEmptyHoldVoltage / kAccelerationDueToGravity / 12.0
-    const val kArmHatchKg = 1.5 / kAccelerationDueToGravity / 12.0
+    val kArmEmptyKg = kArmEmptyHoldVoltage / kAccelerationDueToGravity
+    const val kArmHatchKg = 1.5 / kAccelerationDueToGravity
 
     const val kArmKp = 3.5
     const val kArmKd = 700.0

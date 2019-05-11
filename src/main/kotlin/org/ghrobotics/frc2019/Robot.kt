@@ -1,7 +1,7 @@
 package org.ghrobotics.frc2019
 
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
-import org.ghrobotics.frc2019.subsystems.Drivetrain
+import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
 import org.ghrobotics.lib.wrappers.FalconRobot
 
 object Robot : FalconRobot() {

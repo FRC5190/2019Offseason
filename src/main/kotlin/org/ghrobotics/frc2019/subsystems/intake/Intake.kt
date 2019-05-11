@@ -1,4 +1,4 @@
-package org.ghrobotics.frc2019.subsystems
+package org.ghrobotics.frc2019.subsystems.intake
 
 object Intake {
 

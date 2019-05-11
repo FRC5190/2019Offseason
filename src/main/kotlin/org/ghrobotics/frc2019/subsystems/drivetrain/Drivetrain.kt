@@ -1,4 +1,4 @@
-package org.ghrobotics.frc2019.subsystems
+package org.ghrobotics.frc2019.subsystems.drivetrain
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame

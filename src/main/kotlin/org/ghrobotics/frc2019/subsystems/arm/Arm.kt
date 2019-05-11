@@ -1,13 +1,16 @@
-package org.ghrobotics.frc2019.subsystems
+package org.ghrobotics.frc2019.subsystems.arm
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
 import org.ghrobotics.frc2019.Constants
+import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Rotation2d
 import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
+import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 
 object Arm : FalconSubsystem() {
@@ -17,6 +20,9 @@ object Arm : FalconSubsystem() {
 
     val angle: Rotation2d
         get() = Constants.kArmNativeUnitModel.fromNativeUnitPosition(PeriodicIO.rawSensorPosition.nativeUnits)
+
+    val velocity: Velocity<Rotation2d>
+        get() = Constants.kArmNativeUnitModel.fromNativeUnitVelocity(PeriodicIO.rawSensorVelocity.nativeUnitsPer100ms)
 
     init {
         masterMotor.apply {
@@ -54,6 +60,8 @@ object Arm : FalconSubsystem() {
             talonSRX.config_kD(0, Constants.kArmKd)
             talonSRX.config_kF(0, Constants.kArmKf)
         }
+
+        defaultCommand = DefaultArmCommand()
     }
 
     override fun periodic() {
@@ -72,6 +80,21 @@ object Arm : FalconSubsystem() {
         }
     }
 
+    fun setOpenLoop(percent: Double) {
+        wantedState = State.OpenLoop
+        PeriodicIO.demand = percent
+    }
+
+    fun setAngle(angle: Rotation2d) {
+        wantedState = State.MotionMagic
+        PeriodicIO.demand = Constants.kArmNativeUnitModel.toNativeUnitPosition(angle).value
+    }
+
+    fun setNeutral() {
+        wantedState = State.Nothing
+        PeriodicIO.demand = 0.0
+    }
+
     private object PeriodicIO {
         // Inputs
         var voltage: Double = 0.0
@@ -86,7 +109,7 @@ object Arm : FalconSubsystem() {
         var demand: Double = 0.0
     }
 
-    enum class State {
+    private enum class State {
         OpenLoop, MotionMagic, Nothing
     }
 }
