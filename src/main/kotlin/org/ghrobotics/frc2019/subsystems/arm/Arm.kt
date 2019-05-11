@@ -71,7 +71,8 @@ object Arm : FalconSubsystem() {
         PeriodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
         PeriodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
 
-        PeriodicIO.feedforward = angle.cos * if (Intake.isHoldingHatch) Constants.kArmHatchKg else Constants.kArmEmptyKg
+        PeriodicIO.feedforward = Constants.kAccelerationDueToGravity * angle.cos *
+            if (Intake.isHoldingHatch) Constants.kArmHatchKg else Constants.kArmEmptyKg
 
         when (wantedState) {
             State.Nothing -> masterMotor.setNeutral()
