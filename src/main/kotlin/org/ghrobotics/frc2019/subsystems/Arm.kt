@@ -3,79 +3,90 @@ package org.ghrobotics.frc2019.subsystems
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
 import org.ghrobotics.frc2019.Constants
-import org.ghrobotics.frc2019.Robot
-import org.ghrobotics.lib.components.ArmComponent
-import org.ghrobotics.lib.mathematics.threedim.geometry.Vector3
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Rotation2d
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.millisecond
+import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 
-object Arm : ArmComponent(
-    Vector3(0.0, 0.0, Constants.kElevatorSecondStageToArmShaft.value),
-    Vector3(0.0, 1.0, 0.0)
-) {
+object Arm : FalconSubsystem() {
 
-    override val motor = configMotor()
+    private val masterMotor = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
+    private var wantedState = State.Nothing
 
-    override val armKg: Double get() = if (Intake.isHoldingHatch) Constants.kArmHatchKg else Constants.kArmEmptyKg
+    val angle: Rotation2d
+        get() = Constants.kArmNativeUnitModel.fromNativeUnitPosition(PeriodicIO.rawSensorPosition.nativeUnits)
 
-    // Debug Periodic Values
-    var voltage = 0.0
-        private set
-    var current = 0.0
-        private set
-    var rawSensorPosition = 0.0
-        private set
+    init {
+        masterMotor.apply {
+            outputInverted = true
 
-    override fun update() {
-        super.update()
+            feedbackSensor = FeedbackDevice.Analog
+            encoder.encoderPhase = false
 
-        if (Robot.shouldDebug) {
-            voltage = motor.voltageOutput
-            current = motor.talonSRX.outputCurrent
-            rawSensorPosition = motor.encoder.rawPosition
+            brakeMode = true
+
+            voltageCompSaturation = 12.0
+
+            configCurrentLimit(
+                true, FalconSRX.CurrentLimitConfig(
+                    0.amp,
+                    0.millisecond,
+                    Constants.kArmCurrentLimit
+                )
+            )
+
+            motionProfileCruiseVelocity = Constants.kArmCruiseVelocity.value
+            motionProfileAcceleration = Constants.kArmAcceleration.value
+            useMotionProfileForPosition = true
+
+            talonSRX.configForwardSoftLimitThreshold(Constants.kArmNativeUnitModel.toNativeUnitPosition(220.0).toInt())
+            talonSRX.configForwardSoftLimitEnable(false)
+
+            talonSRX.configReverseSoftLimitThreshold(Constants.kArmNativeUnitModel.toNativeUnitPosition(-40.0).toInt())
+            talonSRX.configReverseSoftLimitEnable(false)
+
+            talonSRX.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 0)
+            talonSRX.selectProfileSlot(0, 0)
+
+            talonSRX.config_kP(0, Constants.kArmKp)
+            talonSRX.config_kD(0, Constants.kArmKd)
+            talonSRX.config_kF(0, Constants.kArmKf)
         }
     }
 
-    private fun configMotor(): FalconSRX<Rotation2d> {
-        val armMaster = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
+    override fun periodic() {
+        PeriodicIO.voltage = masterMotor.voltageOutput
+        PeriodicIO.current = masterMotor.talonSRX.outputCurrent
 
-        armMaster.outputInverted = true
+        PeriodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
+        PeriodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
 
-        armMaster.feedbackSensor = FeedbackDevice.Analog
-        armMaster.encoder.encoderPhase = false
+        PeriodicIO.feedforward = angle.cos * if (Intake.isHoldingHatch) Constants.kArmHatchKg else Constants.kArmEmptyKg
 
-        armMaster.brakeMode = true
-
-        armMaster.voltageCompSaturation = 12.0
-
-        armMaster.configCurrentLimit(
-            true, FalconSRX.CurrentLimitConfig(
-                0.amp,
-                0.millisecond,
-                Constants.kArmCurrentLimit
-            )
-        )
-
-        armMaster.motionProfileCruiseVelocity = Constants.kArmCruiseVelocity.value
-        armMaster.motionProfileAcceleration = Constants.kArmAcceleration.value
-        armMaster.useMotionProfileForPosition = true
-
-        armMaster.talonSRX.configForwardSoftLimitThreshold(Constants.kArmNativeUnitModel.toNativeUnitPosition(220.0).toInt())
-        armMaster.talonSRX.configForwardSoftLimitEnable(false)
-
-        armMaster.talonSRX.configReverseSoftLimitThreshold(Constants.kArmNativeUnitModel.toNativeUnitPosition(-40.0).toInt())
-        armMaster.talonSRX.configReverseSoftLimitEnable(false)
-
-        armMaster.talonSRX.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 0)
-        armMaster.talonSRX.selectProfileSlot(0, 0)
-
-        armMaster.talonSRX.config_kP(0, Constants.kArmKp)
-        armMaster.talonSRX.config_kD(0, Constants.kArmKd)
-        armMaster.talonSRX.config_kF(0, Constants.kArmKf)
-
-        return armMaster
+        when (wantedState) {
+            State.Nothing -> masterMotor.setNeutral()
+            State.MotionMagic -> masterMotor.setPosition(PeriodicIO.demand, PeriodicIO.feedforward)
+            State.OpenLoop -> masterMotor.setDutyCycle(PeriodicIO.demand, PeriodicIO.feedforward)
+        }
     }
 
+    private object PeriodicIO {
+        // Inputs
+        var voltage: Double = 0.0
+        var current: Double = 0.0
+
+        var rawSensorPosition: Double = 0.0
+        var rawSensorVelocity: Double = 0.0
+
+        var feedforward: Double = 0.0
+
+        // Outputs
+        var demand: Double = 0.0
+    }
+
+    enum class State {
+        OpenLoop, MotionMagic, Nothing
+    }
 }

@@ -2,13 +2,11 @@ import edu.wpi.first.gradlerio.GradleRIOPlugin
 import edu.wpi.first.gradlerio.frc.FRCJavaArtifact
 import edu.wpi.first.gradlerio.frc.RoboRIO
 import edu.wpi.first.toolchain.NativePlatforms
-import io.gitlab.arturbosch.detekt.detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.21"
     id("edu.wpi.first.GradleRIO") version "2019.4.1"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC13"
 }
 
 val kMainRobotClass = "org.ghrobotics.frc2019.RobotKt"
@@ -40,17 +38,6 @@ deploy {
     }
 }
 
-detekt {
-    config = files("$projectDir/detekt-config.yml")
-
-    reports {
-        html {
-            enabled = true
-            destination = file("$rootDir/detekt.html")
-        }
-    }
-}
-
 repositories {
     mavenLocal()
     jcenter()
@@ -64,7 +51,7 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.1")
 
     // FalconLibrary
-    compile("org.ghrobotics", "FalconLibrary", "9a6c412")
+    compile("org.ghrobotics", "FalconLibrary", "2019.5.12")
 
     // Apache Commons Math
     compile("org.apache.commons", "commons-math3", "3.6.1")

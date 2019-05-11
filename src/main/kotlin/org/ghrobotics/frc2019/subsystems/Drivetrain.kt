@@ -17,7 +17,6 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 object Drivetrain : DriveComponent(Constants.kDriveElevation) {
 
     init {
-        addComponent(Elevator)
     }
 
     override val leftMotor = configMotor(
@@ -53,8 +52,8 @@ object Drivetrain : DriveComponent(Constants.kDriveElevation) {
             .startPeriodic(1.0 / 100.0)
     }
 
-    override fun update() {
-        super.update()
+    override fun updateState() {
+        super.updateState()
 
         if (wantedLowGear != currentLowGear) {
             currentLowGear =

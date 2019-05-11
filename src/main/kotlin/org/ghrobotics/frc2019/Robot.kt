@@ -17,7 +17,7 @@ object Robot : FalconRobot() {
     }
 
     override fun periodic() {
-        Drivetrain.update()
+        Drivetrain.updateState()
     }
 
 }
