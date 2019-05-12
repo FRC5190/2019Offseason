@@ -155,7 +155,7 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
         PeriodicIO.rightDemand = right
 
         PeriodicIO.leftFeedforward = 0.0
-        PeriodicIO.rightFeedforward
+        PeriodicIO.rightFeedforward = 0.0
     }
 
 
