@@ -3,7 +3,6 @@ package org.ghrobotics.frc2019.subsystems.arm
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
 import org.ghrobotics.frc2019.Constants
-import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Rotation2d
@@ -13,6 +12,7 @@ import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
 object Arm : FalconSubsystem(), EmergencyHandleable {
 

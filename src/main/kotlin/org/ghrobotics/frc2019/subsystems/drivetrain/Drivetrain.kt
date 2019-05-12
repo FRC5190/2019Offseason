@@ -8,7 +8,6 @@ import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.frc2019.Constants
-import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.commands.ConditionCommand
 import org.ghrobotics.lib.localization.TankEncoderLocalization
@@ -19,6 +18,7 @@ import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import kotlin.properties.Delegates
 

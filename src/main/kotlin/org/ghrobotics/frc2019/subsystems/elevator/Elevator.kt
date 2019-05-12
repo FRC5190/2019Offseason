@@ -2,7 +2,6 @@ package org.ghrobotics.frc2019.subsystems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
 import org.ghrobotics.frc2019.Constants
-import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.amp
@@ -11,6 +10,7 @@ import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
 object Elevator : FalconSubsystem(), EmergencyHandleable {
 

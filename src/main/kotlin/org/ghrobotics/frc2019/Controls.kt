@@ -8,6 +8,7 @@ package org.ghrobotics.frc2019
 import edu.wpi.first.wpilibj.GenericHID
 import org.ghrobotics.frc2019.subsystems.Superstructure
 import org.ghrobotics.frc2019.subsystems.arm.OpenLoopArmCommand
+import org.ghrobotics.frc2019.subsystems.climb.Understructure
 import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
 import org.ghrobotics.frc2019.subsystems.elevator.OpenLoopElevatorCommand
 import org.ghrobotics.frc2019.subsystems.intake.Intake
@@ -97,11 +98,10 @@ object Controls {
         }
 
         state({ isClimbing }) {
-            //            button(kA).change(NewAutoClimbRoutines.autoClimb(isLevel2 = false))
-//            button(kY).change(NewAutoClimbRoutines.autoClimb(isLevel2 = true))
+            button(kA).change(Understructure.autoClimb(isLevel2 = false))
+            button(kY).change(Understructure.autoClimb(isLevel2 = true))
         }
     }
-
 
     private fun FalconXboxBuilder.registerEmergencyMode() {
         button(kBack).changeOn {
