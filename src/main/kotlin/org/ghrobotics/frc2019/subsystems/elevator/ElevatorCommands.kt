@@ -11,7 +11,7 @@ class OpenLoopElevatorCommand(private val percentSource: DoubleSource) : FalconC
     }
 
     override suspend fun dispose() {
-        Elevator.setNeutral()
+        Elevator.zeroOutputs()
     }
 }
 

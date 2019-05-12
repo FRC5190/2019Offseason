@@ -111,10 +111,10 @@ object Elevator : FalconSubsystem() {
 
     fun setHeight(height: Length) {
         wantedState = State.MotionMagic
-        PeriodicIO.demand = Constants.kElevatorNativeUnitModel.toNativeUnitPosition(height.value)
+        PeriodicIO.demand = height.value
     }
 
-    fun setNeutral() {
+    override fun zeroOutputs() {
         wantedState = State.Nothing
         PeriodicIO.demand = 0.0
     }
@@ -127,10 +127,9 @@ object Elevator : FalconSubsystem() {
         var rawSensorPosition: Double = 0.0
         var rawSensorVelocity: Double = 0.0
 
-        var feedforward: Double = 0.0
-
         // Outputs
         var demand: Double = 0.0
+        var feedforward: Double = 0.0
     }
 
     private enum class State {

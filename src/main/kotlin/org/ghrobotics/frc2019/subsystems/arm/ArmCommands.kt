@@ -11,7 +11,7 @@ class OpenLoopArmCommand(private val percentSource: DoubleSource) : FalconComman
     }
 
     override suspend fun dispose() {
-        Arm.setNeutral()
+        Arm.zeroOutputs()
     }
 }
 
