@@ -8,10 +8,10 @@ import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Solenoid
 import org.ghrobotics.frc2019.Constants
+import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
@@ -20,7 +20,7 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import kotlin.properties.Delegates
 
-object Drivetrain : TankDriveSubsystem() {
+object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
 
     override val leftMotor = configureDriveGearbox(Constants.kDriveLeftMasterId, Constants.kDriveLeftSlaveId, false)
     override val rightMotor = configureDriveGearbox(Constants.kDriveRightMasterId, Constants.kDriveRightSlaveId, true)
@@ -96,6 +96,21 @@ object Drivetrain : TankDriveSubsystem() {
         masterMotor.talonSRX.config_kD(0, Constants.kDriveKd)
 
         return masterMotor
+    }
+
+    override fun activateEmergency() {
+        listOf(leftMotor, rightMotor).forEach { masterMotor ->
+            masterMotor.talonSRX.config_kP(0, 0.0)
+            masterMotor.talonSRX.config_kD(0, 0.0)
+        }
+        zeroOutputs()
+    }
+
+    override fun recoverFromEmergency() {
+        listOf(leftMotor, rightMotor).forEach { masterMotor ->
+            masterMotor.talonSRX.config_kP(0, Constants.kDriveKp)
+            masterMotor.talonSRX.config_kD(0, Constants.kDriveKd)
+        }
     }
 
     override fun periodic() {

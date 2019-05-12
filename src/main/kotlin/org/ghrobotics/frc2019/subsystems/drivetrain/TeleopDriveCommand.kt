@@ -19,8 +19,8 @@ open class TeleopDriveCommand : FalconCommand(Drivetrain) {
 
     companion object {
         private const val kDeadband = 0.05
-        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
-        val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
-        val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kX) }
+        val speedSource by lazy { Controls.driverController.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
+        val rotationSource by lazy { Controls.driverController.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
+        val quickTurnSource by lazy { Controls.driverController.getRawButton(kX) }
     }
 }

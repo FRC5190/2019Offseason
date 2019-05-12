@@ -2,6 +2,7 @@ package org.ghrobotics.frc2019.subsystems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
 import org.ghrobotics.frc2019.Constants
+import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.amp
@@ -11,7 +12,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 
-object Elevator : FalconSubsystem() {
+object Elevator : FalconSubsystem(), EmergencyHandleable {
 
     private val masterMotor = FalconSRX(Constants.kElevatorMasterId, Constants.kElevatorNativeUnitModel)
     private var wantedState = State.Nothing
@@ -21,6 +22,9 @@ object Elevator : FalconSubsystem() {
 
     val velocity: Velocity<Length>
         get() = Constants.kElevatorNativeUnitModel.fromNativeUnitVelocity(PeriodicIO.rawSensorVelocity.nativeUnitsPer100ms)
+
+    val isZeroed: Boolean
+        get() = PeriodicIO.reverseLimitSwitch
 
     init {
         masterMotor.apply {
@@ -84,12 +88,28 @@ object Elevator : FalconSubsystem() {
         defaultCommand = DefaultElevatorCommand()
     }
 
+    override fun activateEmergency() {
+        masterMotor.talonSRX.config_kP(0, 0.0)
+        masterMotor.talonSRX.config_kD(0, 0.0)
+        masterMotor.talonSRX.config_kF(0, 0.0)
+
+        zeroOutputs()
+    }
+
+    override fun recoverFromEmergency() {
+        masterMotor.talonSRX.config_kP(0, Constants.kElevatorKp)
+        masterMotor.talonSRX.config_kD(0, Constants.kElevatorKd)
+        masterMotor.talonSRX.config_kF(0, Constants.kElevatorKf)
+    }
+
     override fun periodic() {
         PeriodicIO.voltage = masterMotor.voltageOutput
         PeriodicIO.current = masterMotor.talonSRX.outputCurrent
 
         PeriodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
         PeriodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
+
+        PeriodicIO.reverseLimitSwitch = masterMotor.talonSRX.sensorCollection.isRevLimitSwitchClosed
 
         PeriodicIO.feedforward = if (height < Constants.kElevatorSwitchHeight) {
             Constants.kElevatorBelowSwitchKg
@@ -126,6 +146,8 @@ object Elevator : FalconSubsystem() {
 
         var rawSensorPosition: Double = 0.0
         var rawSensorVelocity: Double = 0.0
+
+        var reverseLimitSwitch: Boolean = false
 
         // Outputs
         var demand: Double = 0.0

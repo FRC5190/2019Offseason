@@ -180,6 +180,7 @@ object Constants {
     val kMaxElevatorHeightFromZero = 67.inch
     val kElevatorSecondStageToArmShaft = 8.inch
     val kElevatorHeightFromDrivetrain = 3.inch
+    val kElevatorHeightFromGround = 6.inch
 
     val kElevatorSafeFlipHeight = 3.inch
 
