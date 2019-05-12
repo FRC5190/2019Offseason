@@ -3,6 +3,8 @@ package org.ghrobotics.frc2019
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
 import org.ghrobotics.frc2019.auto.Autonomous
 import org.ghrobotics.frc2019.subsystems.arm.Arm
+import org.ghrobotics.frc2019.subsystems.climb.HABDriver
+import org.ghrobotics.frc2019.subsystems.climb.Stilts
 import org.ghrobotics.frc2019.subsystems.climb.Understructure
 import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
 import org.ghrobotics.frc2019.subsystems.elevator.Elevator
@@ -25,6 +27,8 @@ object Robot : FalconRobot() {
         +Elevator
         +Arm
         +Intake
+        +Stilts
+        +HABDriver
 
         JeVoisManager
     }
