@@ -54,7 +54,6 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     }
 
     init {
-        Notifier(localization::update).startPeriodic(1.0 / 100.0)
         defaultCommand = TeleopDriveCommand()
     }
 
