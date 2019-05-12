@@ -1,6 +1,7 @@
 package org.ghrobotics.frc2019
 
 import edu.wpi.first.wpilibj.SerialPort
+import org.ghrobotics.frc2019.subsystems.drivetrain.TrajectoryVisionTrackerCommand
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.frc2019.vision.JeVoisManager
 import org.ghrobotics.lib.wrappers.FalconRobot
@@ -45,7 +46,7 @@ object LEDs {
 
             Controls.backModifier -> Mode.BackModifier
             Controls.isClimbing -> Mode.Climb
-//            VisionDriveCommand.isActive || TrajectoryVisionTrackerCommand.visionActive -> Mode.VISION
+            /* VisionDriveCommand.isActive || */ TrajectoryVisionTrackerCommand.visionActive -> Mode.Vision
             Intake.isHoldingCargo || Intake.isHoldingHatch -> Mode.HasObtained
             Robot.lastRobotMode == FalconRobot.Mode.DISABLED -> Mode.Disabled
             else -> Mode.None

@@ -1,6 +1,7 @@
 package org.ghrobotics.frc2019
 
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
+import org.ghrobotics.frc2019.auto.Autonomous
 import org.ghrobotics.frc2019.subsystems.EmergencyHandleable
 import org.ghrobotics.frc2019.subsystems.arm.Arm
 import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
@@ -28,9 +29,11 @@ object Robot : FalconRobot() {
     }
 
     override fun periodic() {
+        Autonomous.update()
         TargetTracker.update()
         Controls.update()
         LEDs.update()
+        Network.update()
     }
 
     override operator fun FalconSubsystem.unaryPlus() {
