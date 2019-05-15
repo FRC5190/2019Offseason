@@ -89,15 +89,11 @@ object Stilts : FalconSubsystem(), EmergencyHandleable {
             master.talonSRX.config_kD(2, Constants.kClimbWinchLevelingKd, 10)
         }
 
-        frontMasterMotor.motionProfileAcceleration =
-            0.8.feet.acceleration.toNativeUnitAcceleration(Constants.kClimbFrontWinchNativeUnitModel).value
-        frontMasterMotor.motionProfileCruiseVelocity =
-            1.65.feet.velocity.toNativeUnitVelocity(Constants.kClimbFrontWinchNativeUnitModel).value
-
-        backMasterMotor.motionProfileAcceleration =
-            0.65.feet.acceleration.toNativeUnitAcceleration(Constants.kClimbBackWinchNativeUnitModel).value
-        backMasterMotor.motionProfileCruiseVelocity =
-            1.2.feet.velocity.toNativeUnitVelocity(Constants.kClimbBackWinchNativeUnitModel).value
+        frontMasterMotor.motionProfileAcceleration = 0.8.feet.acceleration.value
+        frontMasterMotor.motionProfileCruiseVelocity = 1.65.feet.velocity.value
+        
+        backMasterMotor.motionProfileAcceleration = 0.65.feet.acceleration.value
+        backMasterMotor.motionProfileCruiseVelocity = 1.2.feet.velocity.value
 
         frontMasterMotor.talonSRX.configAuxPIDPolarity(false)
         backMasterMotor.talonSRX.configAuxPIDPolarity(true)
