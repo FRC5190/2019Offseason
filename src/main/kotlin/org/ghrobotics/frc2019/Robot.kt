@@ -14,6 +14,7 @@ import org.ghrobotics.frc2019.vision.TargetTracker
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.wrappers.FalconRobot
+import org.ghrobotics.lib.mathematics.units.millisecond
 
 object Robot : FalconRobot() {
 
@@ -48,4 +49,8 @@ object Robot : FalconRobot() {
             emergencyReadySystems.add(this)
         }
     }
+}
+
+fun main() {
+    FalconRobot.startRobot({ Robot }, 20.millisecond)
 }
