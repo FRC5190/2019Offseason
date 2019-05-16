@@ -167,7 +167,7 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
         periodicIO.rightDemand = right
 
         periodicIO.leftFeedforward = 0.0
-        periodicIO.rightFeedforward
+        periodicIO.rightFeedforward = 0.0
     }
 
 
