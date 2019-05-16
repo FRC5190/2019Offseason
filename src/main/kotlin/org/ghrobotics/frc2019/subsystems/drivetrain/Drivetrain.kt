@@ -196,21 +196,21 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
         @Log(name = "Left Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)
         var leftVoltage: Double = 0.0
 
-        @Log(name = "Right Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 1)
+        @Log(name = "Right Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 2)
         var rightVoltage: Double = 0.0
 
 
         @Log(name = "Left Current", width = 2, height = 1, rowIndex = 1, columnIndex = 0)
         var leftCurrent: Double = 0.0
 
-        @Log(name = "Right Current", width = 2, height = 1, rowIndex = 1, columnIndex = 1)
+        @Log(name = "Right Current", width = 2, height = 1, rowIndex = 1, columnIndex = 2)
         var rightCurrent: Double = 0.0
 
 
         @Log(name = "Left Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 0)
         var leftRawSensorPosition: Double = 0.0
 
-        @Log(name = "Right Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 1)
+        @Log(name = "Right Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 2)
         var rightRawSensorPosition: Double = 0.0
 
         var leftRawSensorVelocity: Double = 0.0

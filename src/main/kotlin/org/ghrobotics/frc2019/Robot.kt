@@ -13,26 +13,36 @@ import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.frc2019.vision.JeVoisManager
 import org.ghrobotics.frc2019.vision.TargetTracker
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.wrappers.FalconRobot
-import org.ghrobotics.lib.mathematics.units.millisecond
 
 object Robot : FalconRobot() {
 
     val emergencyReadySystems = ArrayList<EmergencyHandleable>()
     var emergencyActive = false
 
+    // To make Oblog work
+    private val drivetrain = Drivetrain
+    private val elevator = Elevator
+    private val arm = Arm
+    private val intake = Intake
+    private val stilts = Stilts
+    private val habDriver = HABDriver
+
     init {
         LiveWindow.disableAllTelemetry()
 
-        +Drivetrain
-        +Elevator
-        +Arm
-        +Intake
-        +Stilts
-        +HABDriver
+        +drivetrain
+        +elevator
+        +arm
+        +intake
+        +stilts
+        +habDriver
 
         JeVoisManager
+
+        Logger.configureLoggingAndConfig(this, false)
     }
 
     override fun periodic() {
