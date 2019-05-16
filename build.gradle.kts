@@ -62,6 +62,9 @@ dependencies {
     wpi.deps.vendor.jni(NativePlatforms.roborio).forEach { nativeZip(it) }
     wpi.deps.vendor.jni(NativePlatforms.desktop).forEach { nativeDesktopZip(it) }
 
+    // Oblog
+    compile("com.github.Oblarg", "Oblog", "2.9.1")
+
     // Gson
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
 

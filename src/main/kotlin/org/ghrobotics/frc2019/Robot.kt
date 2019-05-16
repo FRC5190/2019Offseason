@@ -1,6 +1,7 @@
 package org.ghrobotics.frc2019
 
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
+import io.github.oblarg.oblog.Logger
 import org.ghrobotics.frc2019.auto.Autonomous
 import org.ghrobotics.frc2019.subsystems.arm.Arm
 import org.ghrobotics.frc2019.subsystems.climb.HABDriver
@@ -41,6 +42,7 @@ object Robot : FalconRobot() {
         LEDs.update()
         Network.update()
         Understructure.update()
+        Logger.updateEntries()
     }
 
     override operator fun FalconSubsystem.unaryPlus() {

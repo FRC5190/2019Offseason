@@ -7,6 +7,9 @@ import com.ctre.phoenix.sensors.PigeonIMU
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Solenoid
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
+import io.github.oblarg.oblog.Loggable
+import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.commands.ConditionCommand
@@ -22,10 +25,17 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import kotlin.properties.Delegates
 
-object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
+object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
 
     override val leftMotor = configureDriveGearbox(Constants.kDriveLeftMasterId, Constants.kDriveLeftSlaveId, false)
     override val rightMotor = configureDriveGearbox(Constants.kDriveRightMasterId, Constants.kDriveRightSlaveId, true)
+
+    @Log(name = "PeriodicIO")
+    private val periodicIO = PeriodicIO()
+
+    private var currentState = State.Nothing
+
+    @Log.ToString(name = "Current State")
     private var wantedState = State.Nothing
 
     override val differentialDrive = Constants.kDriveModel
@@ -40,10 +50,10 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     )
 
     val lPosition: Length
-        get() = Constants.kDriveNativeUnitModel.fromNativeUnitPosition(PeriodicIO.leftRawSensorPosition.nativeUnits)
+        get() = Constants.kDriveNativeUnitModel.fromNativeUnitPosition(periodicIO.leftRawSensorPosition.nativeUnits)
 
     val rPosition: Length
-        get() = Constants.kDriveNativeUnitModel.fromNativeUnitPosition(PeriodicIO.rightRawSensorPosition.nativeUnits)
+        get() = Constants.kDriveNativeUnitModel.fromNativeUnitPosition(periodicIO.rightRawSensorPosition.nativeUnits)
 
     var lowGear by Delegates.observable(false) { _, _, wantLow ->
         if (wantLow) {
@@ -54,6 +64,7 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     }
 
     init {
+        Notifier(localization::update).startPeriodic(1.0 / 100.0)
         defaultCommand = TeleopDriveCommand()
     }
 
@@ -118,17 +129,17 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     }
 
     override fun periodic() {
-        PeriodicIO.leftVoltage = leftMotor.voltageOutput
-        PeriodicIO.rightVoltage = rightMotor.voltageOutput
+        periodicIO.leftVoltage = leftMotor.voltageOutput
+        periodicIO.rightVoltage = rightMotor.voltageOutput
 
-        PeriodicIO.leftCurrent = leftMotor.talonSRX.outputCurrent
-        PeriodicIO.rightCurrent = rightMotor.talonSRX.outputCurrent
+        periodicIO.leftCurrent = leftMotor.talonSRX.outputCurrent
+        periodicIO.rightCurrent = rightMotor.talonSRX.outputCurrent
 
-        PeriodicIO.leftRawSensorPosition = leftMotor.encoder.rawPosition
-        PeriodicIO.rightRawSensorPosition = rightMotor.encoder.rawPosition
+        periodicIO.leftRawSensorPosition = leftMotor.encoder.rawPosition
+        periodicIO.rightRawSensorPosition = rightMotor.encoder.rawPosition
 
-        PeriodicIO.leftRawSensorVelocity = leftMotor.encoder.rawVelocity
-        PeriodicIO.rightRawSensorVelocity = rightMotor.encoder.rawVelocity
+        periodicIO.leftRawSensorVelocity = leftMotor.encoder.rawVelocity
+        periodicIO.rightRawSensorVelocity = rightMotor.encoder.rawVelocity
 
         when (wantedState) {
             State.Nothing -> {
@@ -136,14 +147,15 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
                 rightMotor.setNeutral()
             }
             State.PathFollowing -> {
-                leftMotor.setVelocity(PeriodicIO.leftDemand, PeriodicIO.leftFeedforward)
-                rightMotor.setVelocity(PeriodicIO.rightDemand, PeriodicIO.rightFeedforward)
+                leftMotor.setVelocity(periodicIO.leftDemand, periodicIO.leftFeedforward)
+                rightMotor.setVelocity(periodicIO.rightDemand, periodicIO.rightFeedforward)
             }
             State.OpenLoop -> {
-                leftMotor.setDutyCycle(PeriodicIO.leftDemand)
-                rightMotor.setDutyCycle(PeriodicIO.rightDemand)
+                leftMotor.setDutyCycle(periodicIO.leftDemand)
+                rightMotor.setDutyCycle(periodicIO.rightDemand)
             }
         }
+        if (currentState != wantedState) currentState = wantedState
     }
 
     override fun tankDrive(leftPercent: Double, rightPercent: Double) = setOpenLoop(leftPercent, rightPercent)
@@ -151,40 +163,54 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     fun setOpenLoop(left: Double, right: Double) {
         wantedState = State.OpenLoop
 
-        PeriodicIO.leftDemand = left
-        PeriodicIO.rightDemand = right
+        periodicIO.leftDemand = left
+        periodicIO.rightDemand = right
 
-        PeriodicIO.leftFeedforward = 0.0
-        PeriodicIO.rightFeedforward = 0.0
+        periodicIO.leftFeedforward = 0.0
+        periodicIO.rightFeedforward
     }
 
 
     override fun setOutput(wheelVelocities: DifferentialDrive.WheelState, wheelVoltages: DifferentialDrive.WheelState) {
         wantedState = State.PathFollowing
 
-        PeriodicIO.leftDemand = wheelVelocities.left * differentialDrive.wheelRadius
-        PeriodicIO.rightDemand = wheelVelocities.right * differentialDrive.wheelRadius
+        periodicIO.leftDemand = wheelVelocities.left * differentialDrive.wheelRadius
+        periodicIO.rightDemand = wheelVelocities.right * differentialDrive.wheelRadius
 
-        PeriodicIO.leftFeedforward = wheelVoltages.left
-        PeriodicIO.rightFeedforward = wheelVoltages.right
+        periodicIO.leftFeedforward = wheelVoltages.left
+        periodicIO.rightFeedforward = wheelVoltages.right
     }
 
     override fun zeroOutputs() {
         wantedState = State.Nothing
 
-        PeriodicIO.leftDemand = 0.0
-        PeriodicIO.rightDemand = 0.0
+        periodicIO.leftDemand = 0.0
+        periodicIO.rightDemand = 0.0
     }
 
-    private object PeriodicIO {
+    private class PeriodicIO : Loggable {
+
+        override fun configureLayoutType() = BuiltInLayouts.kGrid
+
         // Inputs
+        @Log(name = "Left Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)
         var leftVoltage: Double = 0.0
+
+        @Log(name = "Right Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 1)
         var rightVoltage: Double = 0.0
 
+
+        @Log(name = "Left Current", width = 2, height = 1, rowIndex = 1, columnIndex = 0)
         var leftCurrent: Double = 0.0
+
+        @Log(name = "Right Current", width = 2, height = 1, rowIndex = 1, columnIndex = 1)
         var rightCurrent: Double = 0.0
 
+
+        @Log(name = "Left Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 0)
         var leftRawSensorPosition: Double = 0.0
+
+        @Log(name = "Right Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 1)
         var rightRawSensorPosition: Double = 0.0
 
         var leftRawSensorVelocity: Double = 0.0
