@@ -8,23 +8,25 @@ import org.ghrobotics.lib.commands.FalconSubsystem
 object HABDriver : FalconSubsystem() {
     private val masterMotor = TalonSRX(Constants.kClimbWheelId)
 
+    private val periodicIO = PeriodicIO()
+
     init {
         defaultCommand = TeleopHABDriverCommand()
     }
 
     override fun periodic() {
-        masterMotor.set(ControlMode.PercentOutput, PeriodicIO.demand)
+        masterMotor.set(ControlMode.PercentOutput, periodicIO.demand)
     }
 
     fun setOpenLoop(percent: Double) {
-        PeriodicIO.demand = percent
+        periodicIO.demand = percent
     }
 
     override fun zeroOutputs() {
-        PeriodicIO.demand = 0.0
+        periodicIO.demand = 0.0
     }
 
-    private object PeriodicIO {
+    private class PeriodicIO {
         var demand: Double = 0.0
     }
 }

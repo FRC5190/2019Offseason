@@ -1,6 +1,5 @@
 package org.ghrobotics.frc2019.subsystems.drivetrain
 
-import asSource
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
 import com.ctre.phoenix.sensors.PigeonIMU
@@ -16,10 +15,8 @@ import org.ghrobotics.lib.commands.ConditionCommand
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
-import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
@@ -33,18 +30,18 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
     @Log(name = "PeriodicIO")
     private val periodicIO = PeriodicIO()
 
-    private var currentState = State.Nothing
-
     @Log.ToString(name = "Current State")
+    private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
     override val differentialDrive = Constants.kDriveModel
     override val trajectoryTracker = RamseteTracker(Constants.kDriveBeta, Constants.kDriveZeta)
 
+    private val gyro = PigeonIMU(Intake.masterMotor)
     private val shifter = Solenoid(Constants.kPCMId, Constants.kDriveSolenoidId)
 
     override val localization = TankEncoderLocalization(
-        PigeonIMU(Intake.masterMotor).asSource(),
+        { angle },
         { lPosition.value },
         { rPosition.value }
     )
@@ -54,6 +51,9 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
 
     val rPosition: Length
         get() = Constants.kDriveNativeUnitModel.fromNativeUnitPosition(periodicIO.rightRawSensorPosition.nativeUnits)
+
+    val angle: Rotation2d
+        get() = periodicIO.gyroAngle.degree
 
     var lowGear by Delegates.observable(false) { _, _, wantLow ->
         if (wantLow) {
@@ -141,6 +141,8 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
         periodicIO.leftRawSensorVelocity = leftMotor.encoder.rawVelocity
         periodicIO.rightRawSensorVelocity = rightMotor.encoder.rawVelocity
 
+        periodicIO.gyroAngle = gyro.fusedHeading
+
         when (wantedState) {
             State.Nothing -> {
                 leftMotor.setNeutral()
@@ -193,10 +195,10 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
         override fun configureLayoutType() = BuiltInLayouts.kGrid
 
         // Inputs
-        @Log(name = "Left Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)
+        @Log.VoltageView(name = "Left Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)
         var leftVoltage: Double = 0.0
 
-        @Log(name = "Right Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 2)
+        @Log.VoltageView(name = "Right Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 2)
         var rightVoltage: Double = 0.0
 
 
@@ -212,6 +214,9 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
 
         @Log(name = "Right Sensor Pos", width = 2, height = 1, rowIndex = 2, columnIndex = 2)
         var rightRawSensorPosition: Double = 0.0
+
+        @Log(name = "Gyro Angle", rowIndex = 3, columnIndex = 0)
+        var gyroAngle = 0.0
 
         var leftRawSensorVelocity: Double = 0.0
         var rightRawSensorVelocity: Double = 0.0

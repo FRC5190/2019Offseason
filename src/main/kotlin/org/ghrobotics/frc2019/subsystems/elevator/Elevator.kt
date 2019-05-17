@@ -1,6 +1,9 @@
 package org.ghrobotics.frc2019.subsystems.elevator
 
 import com.ctre.phoenix.motorcontrol.*
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
+import io.github.oblarg.oblog.Loggable
+import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Length
@@ -12,19 +15,25 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
-object Elevator : FalconSubsystem(), EmergencyHandleable {
+object Elevator : FalconSubsystem(), EmergencyHandleable, Loggable {
 
     private val masterMotor = FalconSRX(Constants.kElevatorMasterId, Constants.kElevatorNativeUnitModel)
+
+    @Log(name = "PeriodicIO")
+    private val periodicIO = PeriodicIO()
+
+    @Log.ToString(name = "Current State")
+    private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
     val height: Length
-        get() = Constants.kElevatorNativeUnitModel.fromNativeUnitPosition(PeriodicIO.rawSensorPosition.nativeUnits)
+        get() = Constants.kElevatorNativeUnitModel.fromNativeUnitPosition(periodicIO.rawSensorPosition.nativeUnits)
 
     val velocity: Velocity<Length>
-        get() = Constants.kElevatorNativeUnitModel.fromNativeUnitVelocity(PeriodicIO.rawSensorVelocity.nativeUnitsPer100ms)
+        get() = Constants.kElevatorNativeUnitModel.fromNativeUnitVelocity(periodicIO.rawSensorVelocity.nativeUnitsPer100ms)
 
     val isZeroed: Boolean
-        get() = PeriodicIO.reverseLimitSwitch
+        get() = periodicIO.reverseLimitSwitch
 
     init {
         masterMotor.apply {
@@ -103,15 +112,15 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
     }
 
     override fun periodic() {
-        PeriodicIO.voltage = masterMotor.voltageOutput
-        PeriodicIO.current = masterMotor.talonSRX.outputCurrent
+        periodicIO.voltage = masterMotor.voltageOutput
+        periodicIO.current = masterMotor.talonSRX.outputCurrent
 
-        PeriodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
-        PeriodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
+        periodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
+        periodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
 
-        PeriodicIO.reverseLimitSwitch = masterMotor.talonSRX.sensorCollection.isRevLimitSwitchClosed
+        periodicIO.reverseLimitSwitch = masterMotor.talonSRX.sensorCollection.isRevLimitSwitchClosed
 
-        PeriodicIO.feedforward = if (height < Constants.kElevatorSwitchHeight) {
+        periodicIO.feedforward = if (height < Constants.kElevatorSwitchHeight) {
             Constants.kElevatorBelowSwitchKg
         } else {
             Constants.kElevatorAfterSwitchKg
@@ -119,34 +128,46 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
 
         when (wantedState) {
             State.Nothing -> masterMotor.setNeutral()
-            State.MotionMagic -> masterMotor.setPosition(PeriodicIO.demand, PeriodicIO.feedforward)
-            State.OpenLoop -> masterMotor.setDutyCycle(PeriodicIO.demand, PeriodicIO.feedforward)
+            State.MotionMagic -> masterMotor.setPosition(periodicIO.demand, periodicIO.feedforward)
+            State.OpenLoop -> masterMotor.setDutyCycle(periodicIO.demand, periodicIO.feedforward)
         }
+
+        if (currentState != wantedState) currentState = wantedState
     }
 
     fun setOpenLoop(percent: Double) {
         wantedState = State.OpenLoop
-        PeriodicIO.demand = percent
+        periodicIO.demand = percent
     }
 
     fun setHeight(height: Length) {
         wantedState = State.MotionMagic
-        PeriodicIO.demand = height.value
+        periodicIO.demand = height.value
     }
 
     override fun zeroOutputs() {
         wantedState = State.Nothing
-        PeriodicIO.demand = 0.0
+        periodicIO.demand = 0.0
     }
 
-    private object PeriodicIO {
+    private class PeriodicIO : Loggable {
+
+        override fun configureLayoutType() = BuiltInLayouts.kGrid
+
         // Inputs
+        @Log.VoltageView(name = "Voltage")
         var voltage: Double = 0.0
+
+        @Log(name = "Current")
         var current: Double = 0.0
 
+        @Log(name = "Raw Sensor Pos")
         var rawSensorPosition: Double = 0.0
+
+        @Log(name = "Raw Sensor Vel")
         var rawSensorVelocity: Double = 0.0
 
+        @Log(name = "Rev Limit")
         var reverseLimitSwitch: Boolean = false
 
         // Outputs

@@ -2,9 +2,13 @@ package org.ghrobotics.frc2019.subsystems.arm
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
+import io.github.oblarg.oblog.Loggable
+import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.Rotation2d
 import org.ghrobotics.lib.mathematics.units.amp
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
@@ -14,16 +18,23 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnitsPer100ms
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
-object Arm : FalconSubsystem(), EmergencyHandleable {
+object Arm : FalconSubsystem(), EmergencyHandleable, Loggable {
 
     private val masterMotor = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
+
+    @Log(name = "PeriodicIO")
+    private val periodicIO = PeriodicIO()
+
+    @Log.ToString(name = "Current State")
+    private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
     val angle: Rotation2d
-        get() = Constants.kArmNativeUnitModel.fromNativeUnitPosition(PeriodicIO.rawSensorPosition.nativeUnits)
+        get() = Constants.kArmNativeUnitModel.fromNativeUnitPosition(periodicIO.rawSensorPosition.nativeUnits)
 
     val velocity: Velocity<Rotation2d>
-        get() = Constants.kArmNativeUnitModel.fromNativeUnitVelocity(PeriodicIO.rawSensorVelocity.nativeUnitsPer100ms)
+        get() = Constants.kArmNativeUnitModel.fromNativeUnitVelocity(periodicIO.rawSensorVelocity.nativeUnitsPer100ms)
+
 
     init {
         masterMotor.apply {
@@ -79,43 +90,54 @@ object Arm : FalconSubsystem(), EmergencyHandleable {
     }
 
     override fun periodic() {
-        PeriodicIO.voltage = masterMotor.voltageOutput
-        PeriodicIO.current = masterMotor.talonSRX.outputCurrent
+        periodicIO.voltage = masterMotor.voltageOutput
+        periodicIO.current = masterMotor.talonSRX.outputCurrent
 
-        PeriodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
-        PeriodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
+        periodicIO.rawSensorPosition = masterMotor.encoder.rawPosition
+        periodicIO.rawSensorVelocity = masterMotor.encoder.rawVelocity
 
-        PeriodicIO.feedforward = Constants.kAccelerationDueToGravity * angle.cos *
+        periodicIO.feedforward = Constants.kAccelerationDueToGravity * angle.cos *
             if (Intake.isHoldingHatch) Constants.kArmHatchKg else Constants.kArmEmptyKg
 
         when (wantedState) {
             State.Nothing -> masterMotor.setNeutral()
-            State.MotionMagic -> masterMotor.setPosition(PeriodicIO.demand, PeriodicIO.feedforward)
-            State.OpenLoop -> masterMotor.setDutyCycle(PeriodicIO.demand, PeriodicIO.feedforward)
+            State.MotionMagic -> masterMotor.setPosition(periodicIO.demand, periodicIO.feedforward)
+            State.OpenLoop -> masterMotor.setDutyCycle(periodicIO.demand, periodicIO.feedforward)
         }
+
+        if (currentState != wantedState) currentState = wantedState
     }
 
     fun setOpenLoop(percent: Double) {
         wantedState = State.OpenLoop
-        PeriodicIO.demand = percent
+        periodicIO.demand = percent
     }
 
     fun setAngle(angle: Rotation2d) {
         wantedState = State.MotionMagic
-        PeriodicIO.demand = angle.value
+        periodicIO.demand = angle.value
     }
 
     override fun zeroOutputs() {
         wantedState = State.Nothing
-        PeriodicIO.demand = 0.0
+        periodicIO.demand = 0.0
     }
 
-    private object PeriodicIO {
+    private class PeriodicIO : Loggable {
+
+        override fun configureLayoutType() = BuiltInLayouts.kGrid
+
         // Inputs
+        @Log.VoltageView(name = "Voltage")
         var voltage: Double = 0.0
+
+        @Log(name = "Current")
         var current: Double = 0.0
 
+        @Log(name = "Raw Sensor Pos")
         var rawSensorPosition: Double = 0.0
+
+        @Log(name = "Raw Sensor Vel")
         var rawSensorVelocity: Double = 0.0
 
         // Outputs
