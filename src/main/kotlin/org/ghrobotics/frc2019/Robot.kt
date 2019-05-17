@@ -1,6 +1,7 @@
 package org.ghrobotics.frc2019
 
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
+import io.github.oblarg.oblog.Loggable
 import io.github.oblarg.oblog.Logger
 import org.ghrobotics.frc2019.auto.Autonomous
 import org.ghrobotics.frc2019.subsystems.arm.Arm
@@ -19,26 +20,19 @@ import org.ghrobotics.lib.wrappers.FalconRobot
 
 object Robot : FalconRobot() {
 
+    private val loggableSystems = ArrayList<Loggable>()
     val emergencyReadySystems = ArrayList<EmergencyHandleable>()
     var emergencyActive = false
-
-    // To make Oblog work
-    private val drivetrain = Drivetrain
-    private val elevator = Elevator
-    private val arm = Arm
-    private val intake = Intake
-    private val stilts = Stilts
-    private val habDriver = HABDriver
 
     init {
         LiveWindow.disableAllTelemetry()
 
-        +drivetrain
-        +elevator
-        +arm
-        +intake
-        +stilts
-        +habDriver
+        +Drivetrain
+        +Elevator
+        +Arm
+        +Intake
+        +Stilts
+        +HABDriver
 
         JeVoisManager
 
@@ -57,6 +51,9 @@ object Robot : FalconRobot() {
 
     override operator fun FalconSubsystem.unaryPlus() {
         addToSubsystemHandler(this)
+        if (this is Loggable) {
+            loggableSystems.add(this)
+        }
         if (this is EmergencyHandleable) {
             emergencyReadySystems.add(this)
         }
