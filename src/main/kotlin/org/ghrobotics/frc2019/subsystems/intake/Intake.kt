@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import edu.wpi.first.wpilibj.AnalogInput
 import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj.Solenoid
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
 import io.github.oblarg.oblog.Loggable
 import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.Constants
@@ -102,6 +103,10 @@ object Intake : FalconSubsystem(), Loggable {
     }
 
     private class PeriodicIO : Loggable {
+
+        override fun configureLayoutType() = BuiltInLayouts.kGrid
+        override fun skipLayout() = true
+
         // Inputs
         @Log.VoltageView(name = "Voltage")
         var voltage: Double = 0.0

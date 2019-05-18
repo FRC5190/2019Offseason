@@ -27,6 +27,9 @@ object JeVoisManager {
     var isBackJeVoisConnected = false
         private set
 
+    var isDrivetrainJeVoisConnected = false
+        private set
+
     init {
         fixedRateTimer(name = "JevoisManager", period = 10000L) {
             val currentTime = Timer.getFPGATimestamp().second
@@ -53,8 +56,9 @@ object JeVoisManager {
                 connectedJeVoisCameras.add(JeVois(serialPort))
             }
 
-            isFrontJeVoisConnected = connectedJeVoisCameras.any { it.isFront == true }
+            isFrontJeVoisConnected = connectedJeVoisCameras.any { it.isFront == true && it.isDrivetrain == false }
             isBackJeVoisConnected = connectedJeVoisCameras.any { it.isFront == false }
+            isDrivetrainJeVoisConnected = connectedJeVoisCameras.any { it.isFront == true && it.isDrivetrain == true }
         }
     }
 
@@ -63,6 +67,9 @@ object JeVoisManager {
     ) {
 
         var isFront: Boolean? = null
+            private set
+
+        var isDrivetrain: Boolean? = null
             private set
 
         val systemPortName: String = serialPort.systemPortName
@@ -121,6 +128,7 @@ object JeVoisManager {
                     .filterIsInstance<JsonObject>()
 
                 this.isFront = isFront
+                this.isDrivetrain = isDrivetrain
 
                 VisionProcessing.processData(VisionData(isFront, timestamp, contours))
             } catch (e: JsonParseException) {
@@ -147,5 +155,6 @@ object JeVoisManager {
 data class VisionData(
     val isFront: Boolean,
     val timestamp: Double,
-    val targets: List<JsonObject>
+    val targets: List<JsonObject>,
+    val isDrivetrain: Boolean = false
 )

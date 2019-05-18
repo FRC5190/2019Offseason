@@ -22,10 +22,9 @@ object Arm : FalconSubsystem(), EmergencyHandleable, Loggable {
 
     private val masterMotor = FalconSRX(Constants.kArmId, Constants.kArmNativeUnitModel)
 
-    @Log(name = "PeriodicIO")
     private val periodicIO = PeriodicIO()
 
-    @Log.ToString(name = "Current State")
+    @Log.ToString(name = "Current State", rowIndex = 0, columnIndex = 3)
     private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
@@ -126,18 +125,19 @@ object Arm : FalconSubsystem(), EmergencyHandleable, Loggable {
     private class PeriodicIO : Loggable {
 
         override fun configureLayoutType() = BuiltInLayouts.kGrid
+        override fun skipLayout() = true
 
         // Inputs
-        @Log.VoltageView(name = "Voltage")
+        @Log.VoltageView(name = "Voltage", rowIndex = 0, columnIndex = 0)
         var voltage: Double = 0.0
 
-        @Log(name = "Current")
+        @Log(name = "Current", rowIndex = 1, columnIndex = 0)
         var current: Double = 0.0
 
-        @Log(name = "Raw Sensor Pos")
+        @Log(name = "Raw Sensor Pos", rowIndex = 0, columnIndex = 1)
         var rawSensorPosition: Double = 0.0
 
-        @Log(name = "Raw Sensor Vel")
+        @Log(name = "Raw Sensor Vel", rowIndex = 1, columnIndex = 1)
         var rawSensorVelocity: Double = 0.0
 
         // Outputs

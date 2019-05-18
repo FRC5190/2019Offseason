@@ -3,6 +3,7 @@ package org.ghrobotics.frc2019
 import edu.wpi.first.wpilibj.livewindow.LiveWindow
 import io.github.oblarg.oblog.Loggable
 import io.github.oblarg.oblog.Logger
+import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.auto.Autonomous
 import org.ghrobotics.frc2019.subsystems.arm.Arm
 import org.ghrobotics.frc2019.subsystems.climb.HABDriver
@@ -21,8 +22,12 @@ import org.ghrobotics.lib.wrappers.FalconRobot
 object Robot : FalconRobot() {
 
     private val loggableSystems = ArrayList<Loggable>()
+
+    @Log.Exclude
     val emergencyReadySystems = ArrayList<EmergencyHandleable>()
     var emergencyActive = false
+
+    val network = Network
 
     init {
         LiveWindow.disableAllTelemetry()
@@ -44,7 +49,6 @@ object Robot : FalconRobot() {
         TargetTracker.update()
         Controls.update()
         LEDs.update()
-        Network.update()
         Understructure.update()
         Logger.updateEntries()
     }

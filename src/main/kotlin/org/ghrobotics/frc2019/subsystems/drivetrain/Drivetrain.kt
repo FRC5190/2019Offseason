@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Solenoid
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
 import io.github.oblarg.oblog.Loggable
+import io.github.oblarg.oblog.annotations.Config
 import io.github.oblarg.oblog.annotations.Log
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.frc2019.subsystems.intake.Intake
@@ -27,10 +28,9 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
     override val leftMotor = configureDriveGearbox(Constants.kDriveLeftMasterId, Constants.kDriveLeftSlaveId, false)
     override val rightMotor = configureDriveGearbox(Constants.kDriveRightMasterId, Constants.kDriveRightSlaveId, true)
 
-    @Log(name = "PeriodicIO")
     private val periodicIO = PeriodicIO()
 
-    @Log.ToString(name = "Current State")
+    @Log.ToString(name = "Current State", rowIndex = 0, columnIndex = 5)
     private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
@@ -193,6 +193,7 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable, Loggable {
     private class PeriodicIO : Loggable {
 
         override fun configureLayoutType() = BuiltInLayouts.kGrid
+        override fun skipLayout() = true
 
         // Inputs
         @Log.VoltageView(name = "Left Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)

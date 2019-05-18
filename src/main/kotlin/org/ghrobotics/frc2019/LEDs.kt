@@ -42,7 +42,7 @@ object LEDs {
     fun update() {
         wantedLEDMode = when {
             Robot.emergencyActive || (Robot.lastRobotMode == FalconRobot.Mode.DISABLED &&
-                (!JeVoisManager.isFrontJeVoisConnected || !JeVoisManager.isBackJeVoisConnected)) -> Mode.Emergency
+                (!JeVoisManager.isFrontJeVoisConnected || !JeVoisManager.isBackJeVoisConnected || !JeVoisManager.isDrivetrainJeVoisConnected)) -> Mode.Emergency
 
             Controls.backModifier -> Mode.BackModifier
             Controls.isClimbing -> Mode.Climb

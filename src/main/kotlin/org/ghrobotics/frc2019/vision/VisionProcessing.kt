@@ -3,6 +3,7 @@ package org.ghrobotics.frc2019.vision
 import com.google.gson.JsonObject
 import org.ghrobotics.frc2019.Constants
 import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
+import org.ghrobotics.frc2019.subsystems.elevator.Elevator
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.degree
@@ -15,6 +16,13 @@ object VisionProcessing {
     fun processData(visionData: VisionData) {
         val robotPose = Drivetrain.localization[visionData.timestamp.second]
 
+        val dataFromFront = visionData.isFront && !visionData.isDrivetrain
+        val dataFromDrivetrain = visionData.isFront && visionData.isDrivetrain
+
+        if (dataFromFront && Elevator.height.value in Constants.kElevatorBlockingFrontCameraRange ||
+            dataFromDrivetrain && Elevator.height.value !in Constants.kElevatorBlockingFrontCameraRange
+        ) return
+
         TargetTracker.addSamples(
             visionData.timestamp,
             visionData.targets
@@ -22,7 +30,11 @@ object VisionProcessing {
                 .mapNotNull {
                     processReflectiveTape(
                         it,
-                        if (visionData.isFront) Constants.kCenterToFrontCamera else Constants.kCenterToBackCamera
+                        when {
+                            dataFromFront -> Constants.kCenterToFrontCamera
+                            dataFromDrivetrain -> Constants.kCenterToDrivetrainCamera
+                            else -> Constants.kCenterToBackCamera
+                        }
                     )
                 }
                 .filter {

@@ -102,6 +102,7 @@ object Constants {
     val kBackwardIntakeToCenter = Pose2d(kRobotLength / 2.0 + kIntakeProtrusion, -kBadIntakeOffset, 0.degree)
 
     val kCenterToFrontCamera = Pose2d((-1.75).inch, 0.0.inch, 0.degree)
+    val kCenterToDrivetrainCamera = Pose2d(-1.75.inch, -1.inch, 0.degree)
     val kCenterToBackCamera = Pose2d((-6.25).inch, 0.0.inch, 180.degree)
 
 
@@ -193,7 +194,7 @@ object Constants {
 
     const val kElevatorHoldVoltage = 1.07
 
-    val kElevatorBlockingCameraRange = (29.inch.value)..(41.inch.value)
+    val kElevatorBlockingFrontCameraRange = (29.inch.value)..(65.inch.value)
     val kElevatorVisionPosition = 45.inch
 
     const val kElevatorKp = 1.0

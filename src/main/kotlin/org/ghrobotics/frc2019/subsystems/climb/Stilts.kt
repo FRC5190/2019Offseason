@@ -31,12 +31,11 @@ object Stilts : FalconSubsystem(), EmergencyHandleable, Loggable {
         Constants.kClimbBackWinchNativeUnitModel
     )
 
-    @Log(name = "PeriodicIO")
     private val periodicIO = PeriodicIO()
 
     private val backHallEffectSensor = DigitalInput(Constants.kClimberHallEffectSensor)
 
-    @Log.ToString(name = "Current State")
+    @Log.ToString(name = "Current State", rowIndex = 0, columnIndex = 4)
     private var currentState = State.Nothing
     private var wantedState = State.Nothing
 
@@ -215,6 +214,7 @@ object Stilts : FalconSubsystem(), EmergencyHandleable, Loggable {
     private class PeriodicIO : Loggable {
 
         override fun configureLayoutType() = BuiltInLayouts.kGrid
+        override fun skipLayout() = true
 
         // Inputs
         @Log.VoltageView(name = "Front Voltage", width = 2, height = 1, rowIndex = 0, columnIndex = 0)
