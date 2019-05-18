@@ -10,6 +10,7 @@ import org.ghrobotics.frc2019.subsystems.Superstructure
 import org.ghrobotics.frc2019.subsystems.arm.OpenLoopArmCommand
 import org.ghrobotics.frc2019.subsystems.climb.Understructure
 import org.ghrobotics.frc2019.subsystems.drivetrain.Drivetrain
+import org.ghrobotics.frc2019.subsystems.drivetrain.VisionAssistCommand
 import org.ghrobotics.frc2019.subsystems.elevator.OpenLoopElevatorCommand
 import org.ghrobotics.frc2019.subsystems.intake.Intake
 import org.ghrobotics.frc2019.subsystems.intake.IntakeCargoCommand
@@ -33,8 +34,8 @@ object Controls {
 
         state({ !isClimbing }) {
 
-            //            button(kY).change(VisionDriveCommand(VisionDriveCommand.TargetSide.FRONT))
-//            button(kB).change(VisionDriveCommand(VisionDriveCommand.TargetSide.BACK))
+            button(kY).change(VisionAssistCommand(VisionAssistCommand.TargetSide.Front))
+            button(kB).change(VisionAssistCommand(VisionAssistCommand.TargetSide.Back))
 
             button(kA).changeOn { Drivetrain.lowGear = true }
             button(kA).changeOff { Drivetrain.lowGear = false }
