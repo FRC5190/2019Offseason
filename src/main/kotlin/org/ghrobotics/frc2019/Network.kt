@@ -42,10 +42,10 @@ object Network : Loggable {
         @Log(name = "Front JeVois", rowIndex = 3, columnIndex = 0) get() = JeVoisManager.isFrontJeVoisConnected
 
     val backJeVois
-        @Log(name = "Drivetrain JeVois", rowIndex = 3, columnIndex = 1) get() = JeVoisManager.isBackJeVoisConnected
+        @Log(name = "Back JeVois", rowIndex = 3, columnIndex = 1) get() = JeVoisManager.isBackJeVoisConnected
 
     val drivetrainJeVois
-        @Log(name = "Front JeVois", rowIndex = 3, columnIndex = 2) get() = JeVoisManager.isDrivetrainJeVoisConnected
+        @Log(name = "Drivetrain JeVois", rowIndex = 3, columnIndex = 2) get() = JeVoisManager.isDrivetrainJeVoisConnected
 
 
     init {
