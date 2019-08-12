@@ -11,6 +11,7 @@ package org.ghrobotics.frc2019
 import org.ghrobotics.frc2019.subsystems.Arm
 import org.ghrobotics.frc2019.subsystems.Drivetrain
 import org.ghrobotics.frc2019.subsystems.Elevator
+import org.ghrobotics.frc2019.vision.LimelightManager
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 
 object Robot : FalconTimedRobot() {
@@ -20,6 +21,10 @@ object Robot : FalconTimedRobot() {
     +Drivetrain
     +Elevator
     +Arm
+  }
+
+  override fun robotInit() {
+    LimelightManager.initialize()
   }
 
   @JvmStatic

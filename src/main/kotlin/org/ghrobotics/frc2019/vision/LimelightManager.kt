@@ -8,7 +8,38 @@
 
 package org.ghrobotics.frc2019.vision
 
+import edu.wpi.first.wpilibj.Notifier
+import edu.wpi.first.wpilibj.geometry.Rotation2d
+import org.ghrobotics.lib.mathematics.units.inches
+
 object LimelightManager {
-  fun turnOnLED() {}
-  fun turnOffLED() {}
+
+  private val kFrontLimelightHeight = 44.3.inches
+  private val kFrontLimelightAngle = Rotation2d.fromDegrees(-30.0)
+  private val kVisionTargetHeight = 29.inches
+
+  private val notifier = Notifier(::update)
+
+  private val frontLimelight = Limelight(
+    kFrontLimelightHeight,
+    kFrontLimelightAngle,
+    kVisionTargetHeight,
+    "limelight"
+  )
+
+  var isAlive: Boolean = false
+    private set
+
+  fun turnOnLED() = frontLimelight.turnOnLED()
+  fun turnOffLED() = frontLimelight.turnOffLED()
+  fun blinkLEDs() = frontLimelight.blinkLEDs()
+
+  fun initialize() {
+    notifier.startPeriodic(0.02)
+  }
+
+  private fun update() {
+    isAlive = frontLimelight.isAlive
+    frontLimelight.update()
+  }
 }
