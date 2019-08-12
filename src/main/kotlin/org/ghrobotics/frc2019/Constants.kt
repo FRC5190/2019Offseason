@@ -22,11 +22,14 @@ object Constants {
 
   val kRobotLength = 30.inches
   val kRobotWidth = 30.inches
+  val kBumperThickness = 4.5.inches
 
   val kCenterToFrontCamera = Pose2d((-1.75).inches, 0.inches, Rotation2d())
 
   val kIntakeOffset = Transform2d(0.inches, 0.1.inches, Rotation2d())
   val kCenterToForwardIntake = Transform2d(16.inches, 0.inches, Rotation2d())
+  val kForwardIntakeToCenter = Transform2d((-16).inches, 0.inches, Rotation2d())
+  val kBackwardIntakeToCenter = kCenterToForwardIntake
 
   const val kPCMId = 41
 }
