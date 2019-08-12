@@ -12,6 +12,16 @@ import org.ghrobotics.frc2019.subsystems.Elevator
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.Meter
 import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.utils.DoubleSource
+
+class DefaultElevatorCommand : FalconCommand(Elevator) {
+  override fun initialize() = Elevator.setPosition(Elevator.height)
+}
+
+class OpenLoopElevatorCommand(val percent: DoubleSource) :
+  FalconCommand(Elevator) {
+  override fun execute() = Elevator.setPercent(percent())
+}
 
 class ClosedLoopElevatorCommand(private val position: SIUnit<Meter>) :
   FalconCommand(Elevator) {

@@ -41,7 +41,7 @@ object Elevator : FalconSubsystem() {
   private val kContinuousCurrentLimit = 20.amps
 
   private val kClosedLoopPositionTolerance = 1.inches
-  private val kClosedLoopVelocityTolerance = 1.inches / 1.second
+  private val kClosedLoopVelocityTolerance = 1.inches / 1.seconds
 
   private val kMotionProfileCruiseVelocity = 70.inches / 1.seconds
   private val kMotionProfileAcceleration = 122.5.inches / 1.seconds / 1.seconds
@@ -174,7 +174,7 @@ object Elevator : FalconSubsystem() {
       kAfterTransitionKg + kAfterTransitionKs
     }
 
-  class PeriodicIO {
+  private class PeriodicIO {
     var voltage: SIUnit<Volt> = 0.volts
     var current: SIUnit<Ampere> = 0.amps
 
@@ -185,7 +185,7 @@ object Elevator : FalconSubsystem() {
     var feedforward: SIUnit<Volt> = 0.volts
   }
 
-  sealed class Output {
+  private sealed class Output {
     object Nothing : Output()
     class Percent(val percent: Double) : Output()
     class Position(val position: SIUnit<Meter>) : Output()

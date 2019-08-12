@@ -195,7 +195,7 @@ formatting:
     active: true
     autoCorrect: true
   ImportOrdering:
-    active: true
+    active: false
   Indentation:
     active: true
     indentSize: 2

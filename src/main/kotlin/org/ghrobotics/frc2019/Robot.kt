@@ -8,12 +8,14 @@
 
 package org.ghrobotics.frc2019
 
+import org.ghrobotics.frc2019.subsystems.Arm
 import org.ghrobotics.frc2019.subsystems.Elevator
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 
 object Robot : FalconTimedRobot() {
   init {
     +Elevator
+    +Arm
   }
 
   @JvmStatic
