@@ -31,6 +31,7 @@ class TrajectoryVisionTrackerCommand(
 ) : FalconCommand(Drivetrain) {
 
   companion object {
+    const val kLinearKp = 3.0 / 5.0
     const val kCorrectionKp = 4.5
     var visionActive = false
   }
@@ -86,11 +87,12 @@ class TrajectoryVisionTrackerCommand(
           Rotation2d.fromDegrees(180.0)
         }
 
+      val linear = kLinearKp * transform.translation.x
       val turn = kCorrectionKp * error.radians
 
       Drivetrain.setOutput(
         TrajectoryTrackerOutput(
-          nextState.linearVelocity,
+          /* nextState.linearVelocity */ linear.feet / 1.seconds,
           0.meters / 1.seconds / 1.seconds,
           turn.radians / 1.seconds,
           0.radians / 1.seconds / 1.seconds
