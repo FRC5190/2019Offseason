@@ -21,14 +21,17 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.mathematics.units.operations.div
 import org.ghrobotics.lib.mathematics.units.seconds
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import kotlin.math.cos
 
-object Arm : FalconSubsystem() {
+object Arm : FalconSubsystem(), EmergencyHandleable {
   private const val kMasterId: Int = 9
 
   private val kSensorResolution = 1024.nativeUnits
   private val kVerticalTicks = (-495).nativeUnits
 
+  private const val kP = 3.5
+  private const val kD = 700.0
   private val kG = 1.5.volts
 
   private val kPeakCurrentLimit = 0.amps
@@ -87,7 +90,18 @@ object Arm : FalconSubsystem() {
         selectProfileSlot(0, 0)
       }
     }
+    recoverFromEmergency()
     defaultCommand = DefaultArmCommand()
+  }
+
+  override fun activateEmergency() {
+    master.talonSRX.config_kP(0, 0.0)
+    master.talonSRX.config_kD(0, 0.0)
+  }
+
+  override fun recoverFromEmergency() {
+    master.talonSRX.config_kP(0, kP)
+    master.talonSRX.config_kD(0, kD)
   }
 
   override fun periodic() {
@@ -100,7 +114,7 @@ object Arm : FalconSubsystem() {
     val feedforward = periodicIO.feedforward
 
     when (val desiredOutput = periodicIO.desiredOutput) {
-      is Nothing -> master.setNeutral()
+      is Output.Nothing -> master.setNeutral()
       is Output.Percent -> master.setDutyCycle(
         desiredOutput.percent,
         feedforward
@@ -133,7 +147,7 @@ object Arm : FalconSubsystem() {
     var angle: SIUnit<Radian> = 0.radians
     var velocity: SIUnit<AngularVelocity> = 0.radians / 1.seconds
 
-    var desiredOutput: Arm.Output = Arm.Output.Percent(0.0)
+    var desiredOutput: Output = Output.Percent(0.0)
     var feedforward: SIUnit<Volt> = 0.volts
   }
 

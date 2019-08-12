@@ -19,8 +19,9 @@ import org.ghrobotics.lib.mathematics.units.derived.volts
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.mathematics.units.operations.div
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
-object Elevator : FalconSubsystem() {
+object Elevator : FalconSubsystem(), EmergencyHandleable {
   private const val kMasterId: Int = 5
   private const val kSlave1Id: Int = 6
   private const val kSlave2Id: Int = 7
@@ -31,6 +32,7 @@ object Elevator : FalconSubsystem() {
   private val kAfterTransitionSampleHeight = 54.5.inches
   private val kAfterTransitionNativeUnitSample = 9606.nativeUnits
 
+  private const val kP = 1.0
   private val kBeforeTransitionKs = 1.3169999999999993.volts
   private val kBeforeTransitionKg = 0.7889999999999985.volts
   private val kAfterTransitionKs = 1.0709999999999904.volts
@@ -127,7 +129,16 @@ object Elevator : FalconSubsystem() {
         )
       }
     }
+    recoverFromEmergency()
     defaultCommand = DefaultElevatorCommand()
+  }
+
+  override fun activateEmergency() {
+    master.talonSRX.config_kP(0, 0.0)
+  }
+
+  override fun recoverFromEmergency() {
+    master.talonSRX.config_kP(0, kP)
   }
 
   override fun periodic() {
@@ -140,7 +151,7 @@ object Elevator : FalconSubsystem() {
     val feedforward = periodicIO.feedforward
 
     when (val desiredOutput = periodicIO.desiredOutput) {
-      is Nothing -> master.setNeutral()
+      is Output.Nothing -> master.setNeutral()
       is Output.Percent -> master.setDutyCycle(
         desiredOutput.percent,
         feedforward
