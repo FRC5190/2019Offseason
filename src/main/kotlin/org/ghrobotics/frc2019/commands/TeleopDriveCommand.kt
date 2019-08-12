@@ -17,7 +17,7 @@ import org.ghrobotics.lib.wrappers.hid.getX
 import org.ghrobotics.lib.wrappers.hid.getY
 import org.ghrobotics.lib.wrappers.hid.kA
 
-class TeleopDriveCommand : FalconCommand(Drivetrain) {
+open class TeleopDriveCommand : FalconCommand(Drivetrain) {
   companion object {
     val xSpeed = Controls.driverXbox.getY(GenericHID.Hand.kLeft)
     val ySpeed = Controls.driverXbox.getX(GenericHID.Hand.kLeft)

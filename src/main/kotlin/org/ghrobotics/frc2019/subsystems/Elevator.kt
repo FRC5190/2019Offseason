@@ -48,6 +48,9 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
   private val kMotionProfileCruiseVelocity = 70.inches / 1.seconds
   private val kMotionProfileAcceleration = 122.5.inches / 1.seconds / 1.seconds
 
+  private val kBlockingCameraRange = 29.inches..41.inches
+  private val kVisionPosition = 45.inches
+
   private val kModel = SpringCascadeElevatorModel(
     transitionHeight = kTransitionHeight,
     transitionNativeUnit = kTransitionNativeUnit,
@@ -63,6 +66,8 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
   private val allMotors = arrayOf(master, slave1, slave2, slave3)
 
   private val periodicIO = PeriodicIO()
+
+  private var visionRequested = false
 
   val height: SIUnit<Meter>
     get() = periodicIO.height
@@ -156,10 +161,19 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
         desiredOutput.percent,
         feedforward
       )
-      is Output.Position -> master.setPosition(
-        desiredOutput.position,
-        feedforward
-      )
+      is Output.Position -> {
+        if (visionRequested && desiredOutput.position in kBlockingCameraRange) {
+          master.setPosition(
+            kVisionPosition,
+            feedforward
+          )
+        } else {
+          master.setPosition(
+            desiredOutput.position,
+            feedforward
+          )
+        }
+      }
     }
   }
 
@@ -176,6 +190,10 @@ object Elevator : FalconSubsystem(), EmergencyHandleable {
   fun setPercent(percent: Double) {
     periodicIO.desiredOutput = Output.Percent(percent)
     periodicIO.feedforward = calculateFF(this.height)
+  }
+
+  fun requestVisionMode(enabled: Boolean) {
+    visionRequested = enabled
   }
 
   private fun calculateFF(position: SIUnit<Meter>) =

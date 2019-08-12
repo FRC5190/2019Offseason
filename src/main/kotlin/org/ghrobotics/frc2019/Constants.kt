@@ -8,6 +8,9 @@
 
 package org.ghrobotics.frc2019
 
+import edu.wpi.first.wpilibj.geometry.Rotation2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Transform2d
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.mathematics.units.lbs
 
 object Constants {
@@ -15,6 +18,10 @@ object Constants {
   val kRobotMass = 145.lbs
   const val kRobotMomentOfInertia = 10.0 // kg m^2
   const val kRobotAngularDrag = 12.0 // Nm / (rad/s)
+
+  val kIntakeOffset = Transform2d(0.inches, 0.1.inches, Rotation2d())
+
+  val kCenterToForwardIntake = Transform2d(16.inches, 0.inches, Rotation2d())
 
   const val kPCMId = 41
 }
