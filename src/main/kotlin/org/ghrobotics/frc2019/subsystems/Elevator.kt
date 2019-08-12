@@ -13,7 +13,7 @@ import org.ghrobotics.frc2019.commands.DefaultElevatorCommand
 import org.ghrobotics.frc2019.models.SpringCascadeElevatorModel
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derived.Velocity
+import org.ghrobotics.lib.mathematics.units.derived.LinearVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Volt
 import org.ghrobotics.lib.mathematics.units.derived.volts
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
@@ -60,26 +60,23 @@ object Elevator : FalconSubsystem() {
 
   private val allMotors = arrayOf(master, slave1, slave2, slave3)
 
-  private val lock = Any()
   private val periodicIO = PeriodicIO()
 
   val height: SIUnit<Meter>
-    get() = synchronized(lock) { return periodicIO.height }
+    get() = periodicIO.height
 
-  val velocity: SIUnit<Velocity<Meter>>
-    get() = synchronized(lock) { return periodicIO.velocity }
+  val velocity: SIUnit<LinearVelocity>
+    get() = periodicIO.velocity
 
   val atDesiredGoal: Boolean
     get() {
-      synchronized(lock) {
-        val desiredOutput = periodicIO.desiredOutput
-        if (desiredOutput is Output.Position) {
-          return (height - desiredOutput.position).absoluteValue <
-            kClosedLoopPositionTolerance && velocity.absoluteValue <
-            kClosedLoopVelocityTolerance
-        }
-        return false
+      val desiredOutput = periodicIO.desiredOutput
+      if (desiredOutput is Output.Position) {
+        return (height - desiredOutput.position).absoluteValue <
+          kClosedLoopPositionTolerance && velocity.absoluteValue <
+          kClosedLoopVelocityTolerance
       }
+      return false
     }
 
   init {
@@ -130,53 +127,44 @@ object Elevator : FalconSubsystem() {
         )
       }
     }
-  }
-
-  override fun periodic() {
-    synchronized(lock) {
-      periodicIO.voltage = master.voltageOutput
-      periodicIO.current = master.talonSRX.outputCurrent.amps
-
-      periodicIO.height = master.encoder.position
-      periodicIO.velocity = master.encoder.velocity
-
-      val feedforward = periodicIO.feedforward
-
-      when (val desiredOutput = periodicIO.desiredOutput) {
-        is Nothing -> master.setNeutral()
-        is Output.Percent -> master.setDutyCycle(
-          desiredOutput.percent,
-          feedforward
-        )
-        is Output.Position -> master.setPosition(
-          desiredOutput.position,
-          feedforward
-        )
-      }
-    }
-
     defaultCommand = DefaultElevatorCommand()
   }
 
-  override fun setNeutral() {
-    synchronized(lock) {
-      periodicIO.desiredOutput = Output.Nothing
-      periodicIO.feedforward = 0.volts
+  override fun periodic() {
+    periodicIO.voltage = master.voltageOutput
+    periodicIO.current = master.talonSRX.outputCurrent.amps
+
+    periodicIO.height = master.encoder.position
+    periodicIO.velocity = master.encoder.velocity
+
+    val feedforward = periodicIO.feedforward
+
+    when (val desiredOutput = periodicIO.desiredOutput) {
+      is Nothing -> master.setNeutral()
+      is Output.Percent -> master.setDutyCycle(
+        desiredOutput.percent,
+        feedforward
+      )
+      is Output.Position -> master.setPosition(
+        desiredOutput.position,
+        feedforward
+      )
     }
+  }
+
+  override fun setNeutral() {
+    periodicIO.desiredOutput = Output.Nothing
+    periodicIO.feedforward = 0.volts
   }
 
   fun setPosition(position: SIUnit<Meter>) {
-    synchronized(lock) {
-      periodicIO.desiredOutput = Output.Position(position)
-      periodicIO.feedforward = calculateFF(position)
-    }
+    periodicIO.desiredOutput = Output.Position(position)
+    periodicIO.feedforward = calculateFF(position)
   }
 
   fun setPercent(percent: Double) {
-    synchronized(lock) {
-      periodicIO.desiredOutput = Output.Percent(percent)
-      periodicIO.feedforward = calculateFF(this.height)
-    }
+    periodicIO.desiredOutput = Output.Percent(percent)
+    periodicIO.feedforward = calculateFF(this.height)
   }
 
   private fun calculateFF(position: SIUnit<Meter>) =
@@ -191,7 +179,7 @@ object Elevator : FalconSubsystem() {
     var current: SIUnit<Ampere> = 0.amps
 
     var height: SIUnit<Meter> = 0.meters
-    var velocity: SIUnit<Velocity<Meter>> = 0.meters / 1.seconds
+    var velocity: SIUnit<LinearVelocity> = 0.meters / 1.seconds
 
     var desiredOutput: Output = Elevator.Output.Percent(0.0)
     var feedforward: SIUnit<Volt> = 0.volts
