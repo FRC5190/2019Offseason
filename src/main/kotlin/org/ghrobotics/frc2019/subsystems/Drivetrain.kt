@@ -10,7 +10,6 @@ package org.ghrobotics.frc2019.subsystems
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.StatusFrame
-import com.ctre.phoenix.sensors.PigeonIMU
 import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.Solenoid
@@ -39,7 +38,6 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
   private const val kLeftSlave1Id = 2
   private const val kRightMasterId = 3
   private const val kRightSlave1Id = 4
-  private const val kPigeonId = 17
   private const val kShifterId = 0
 
   private const val kBeta = 2.0
@@ -79,8 +77,8 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
   private val leftSlave1 = FalconSRX(kLeftSlave1Id, kModel)
   override val rightMotor = FalconSRX(kRightMasterId, kModel)
   private val rightSlave1 = FalconSRX(kRightSlave1Id, kModel)
-  private val gyro = PigeonIMU(kPigeonId)
 
+  private val gyro = Intake.pigeon
   private val shifter = Solenoid(Constants.kPCMId, kShifterId)
 
   private val allMasters = arrayOf(leftMotor, rightMotor)
