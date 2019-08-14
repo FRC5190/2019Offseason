@@ -17,6 +17,9 @@ import org.ghrobotics.frc2019.subsystems.Drivetrain
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.Meter
 import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degrees
+import org.ghrobotics.lib.mathematics.units.derived.radians
 import org.ghrobotics.lib.mathematics.units.seconds
 import org.ghrobotics.lib.wrappers.networktables.get
 import kotlin.math.tan
@@ -42,6 +45,9 @@ class Limelight(
   var isAlive: Boolean = false
     private set
 
+  var angleToTarget: SIUnit<Radian> = 0.degrees
+    private set
+
   fun turnOnLED() {
     limelightTable["ledMode"].setNumber(3)
   }
@@ -64,6 +70,8 @@ class Limelight(
     // We don't want that.
     val tx = -Math.toRadians(tx.getDouble(0.0))
     val ty = +Math.toRadians(ty.getDouble(0.0))
+
+    angleToTarget = tx.radians
 
     val distanceToTarget =
       (targetHeight - limelightHeight) / tan(limelightAngle + ty)

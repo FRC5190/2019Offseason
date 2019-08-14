@@ -87,7 +87,7 @@ class TrajectoryVisionTrackerCommand(
           Rotation2d.fromDegrees(180.0)
         }
 
-      val linear = kLinearKp * transform.translation.x
+      val linear = kLinearKp * transform.translation.x_u.inFeet()
       val turn = kCorrectionKp * error.radians
 
       Drivetrain.setOutput(

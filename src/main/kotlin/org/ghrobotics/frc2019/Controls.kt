@@ -40,7 +40,13 @@ object Controls {
     registerEmergencyMode()
 
     // Vision Align
-    button(kY).change(VisionDriveCommand(isFront = true))
+    button(kY).change(
+      VisionDriveCommand(
+        isFront = true,
+        disableLatencyComp = true,
+        autoPlace = true
+      )
+    )
     button(kB).change(VisionDriveCommand(isFront = false))
 
     // Shifting

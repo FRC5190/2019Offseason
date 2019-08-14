@@ -10,6 +10,9 @@ package org.ghrobotics.frc2019.vision
 
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.geometry.Rotation2d
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.inches
 
 object LimelightManager {
@@ -27,6 +30,9 @@ object LimelightManager {
     "limelight"
   )
 
+  var frontLimelightAngleToTarget: SIUnit<Radian> = 0.degrees
+    private set
+
   var isAlive: Boolean = false
     private set
 
@@ -39,7 +45,8 @@ object LimelightManager {
   }
 
   private fun update() {
-    isAlive = frontLimelight.isAlive
     frontLimelight.update()
+    isAlive = frontLimelight.isAlive
+    frontLimelightAngleToTarget = frontLimelight.angleToTarget
   }
 }

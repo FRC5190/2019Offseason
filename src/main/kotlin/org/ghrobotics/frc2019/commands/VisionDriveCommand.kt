@@ -15,10 +15,17 @@ import org.ghrobotics.frc2019.subsystems.Drivetrain
 import org.ghrobotics.frc2019.subsystems.Elevator
 import org.ghrobotics.frc2019.vision.LimelightManager
 import org.ghrobotics.frc2019.vision.TargetTracker
+import org.ghrobotics.lib.mathematics.twodim.geometry.x_u
+import org.ghrobotics.lib.mathematics.units.inFeet
 
-class VisionDriveCommand(private val isFront: Boolean) : TeleopDriveCommand() {
+class VisionDriveCommand(
+  private val isFront: Boolean,
+  private val disableLatencyComp: Boolean = false,
+  private val autoPlace: Boolean = false
+) : TeleopDriveCommand() {
 
   companion object {
+    const val kLinearKp = 3.0 / 5.0
     const val kCorrectionKp = 0.8
     const val kCorrectionKd = 8.0
     var isActive = false
@@ -38,6 +45,7 @@ class VisionDriveCommand(private val isFront: Boolean) : TeleopDriveCommand() {
     referencePose = Drivetrain.robotPosition
   }
 
+  @Suppress("ComplexMethod")
   override fun execute() {
     val newTarget =
       TargetTracker.getTargetUsingReference(referencePose, isFront)
@@ -48,8 +56,6 @@ class VisionDriveCommand(private val isFront: Boolean) : TeleopDriveCommand() {
 
     val lastKnownTargetPose = this.lastKnownTargetPose
 
-    val source = -xSpeed()
-
     if (lastKnownTargetPose == null) {
       Elevator.requestVisionMode(true)
       super.execute()
@@ -59,7 +65,16 @@ class VisionDriveCommand(private val isFront: Boolean) : TeleopDriveCommand() {
         lastKnownTargetPose.relativeTo(
           Drivetrain.robotPosition + Constants.kIntakeOffset
         )
-      val angle = Rotation2d(transform.translation.x, transform.translation.y)
+
+      val angle = if (disableLatencyComp) {
+        Rotation2d(LimelightManager.frontLimelightAngleToTarget.value)
+      } else {
+        Rotation2d(transform.translation.x, transform.translation.y)
+      }
+
+      val source =
+        if (autoPlace) kLinearKp * transform.translation.x_u.inFeet() / 17.0
+        else -xSpeed()
 
       val error = angle +
         if (isFront) {
@@ -69,7 +84,8 @@ class VisionDriveCommand(private val isFront: Boolean) : TeleopDriveCommand() {
         }
 
       val turn =
-        kCorrectionKp * error.radians * kCorrectionKd * (error.radians - prevError)
+        kCorrectionKp * error.radians * kCorrectionKd *
+          (error.radians - prevError)
       prevError = error.radians
 
       Drivetrain.tankDrive(source - turn, source + turn)
