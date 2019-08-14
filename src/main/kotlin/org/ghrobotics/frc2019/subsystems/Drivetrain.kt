@@ -205,6 +205,14 @@ object Drivetrain : TankDriveSubsystem(), EmergencyHandleable {
     periodicIO.rightFeedforward = 0.volts
   }
 
+  fun setHighGear() {
+    shifter.set(false)
+  }
+
+  fun setLowGear() {
+    shifter.set(true)
+  }
+
   private class PeriodicIO {
     var leftVoltage: SIUnit<Volt> = 0.volts
     var rightVoltage: SIUnit<Volt> = 0.volts

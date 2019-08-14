@@ -30,7 +30,7 @@ import org.ghrobotics.lib.utils.map
 import java.sql.Time
 
 abstract class AutoRoutine : Source<Command> {
-  abstract val duration: Time
+  abstract val duration: SIUnit<Second>
   abstract val routine: Command
 
   override fun invoke(): Command = sequential {
